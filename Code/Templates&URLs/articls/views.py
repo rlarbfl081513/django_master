@@ -5,12 +5,11 @@ import random
 def index(request):
     query = request.GET.get('query')
     context = {'query': query}
-    print(request)          # <WSGIRequest: GET '/articls/?query=ssafy'>
-    print(type(request))    # <class 'django.core.handlers.wsgi.WSGIRequest'>
-    print(dir(request))
-    print(request.GET)      # <QueryDict: {'query': ['ssafy']}>
-    print(request.GET.get('query'))  # ssafy
-    
+    # print(request)          # <WSGIRequest: GET '/articls/?query=ssafy'>
+    # print(type(request))    # <class 'django.core.handlers.wsgi.WSGIRequest'>
+    # print(dir(request))
+    # print(request.GET)      # <QueryDict: {'query': ['ssafy']}>
+    # print(request.GET.get('query'))  # ssafy
     
     # context라는 딕셔너리값을 articls/index.html여기서 활용할 수 있게 해주는 거임
     return render(request, 'articls/index.html',context)
@@ -51,3 +50,9 @@ def dinner(request):
 
 def search(request):
     return render(request, 'articls/search.html')
+
+def detail(request, num):
+    context = {
+        'num' : num,
+    }
+    return render(request, 'articls/detail.html', context)
