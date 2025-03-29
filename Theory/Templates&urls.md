@@ -163,3 +163,81 @@ def index(request):
           - 사용자의 입력 데이터를 URL 주소에 파라미터 통해 서버로 보내는 방법
           - 문자열은 앰퍼세트(&)로 연결된 key=value쌍으로 구성되며, 기본 url과는 물음표로 구분됨
         
+# URLs
+1. URL dsiapatcher
+    - 운항관리자, 분배기
+    - url 패턴을 정의하고 해당패턴이 일치하는 요청을 처리할 view함수를 연결(매핑)
+2. variable routing (변수 경로)
+    - url 일부에 변수를 포함시키는 것 (변수는 view 함수의 인자로 전달 할 수 있음)
+    - 작성법
+      ```python
+        <path_converter : variable_name>
+
+        path('articles/<int:num>', views.detail)
+        path('articles/<str:num>', views.detail)
+      ```
+
+## APP URL mapping
+1. 각 앱에 url 정의하는 것
+    - 프로젝트와 각 앱이 url을 나누어 관리를 편하게 하기 위함
+2. include()
+    - 프로젝트 내부 앱들의 url을 참조할 수 있도록 매핑하는 함수
+    - url의 일치하는 부분까지 잘라내고, 남은 문자열 부분은 후속처리를 위해 include된 url로 전달 
+    ```python
+      # 프로젝트 urls.py
+      from django.urls import path, include
+      urlpatterns = [
+          path('admin/', admin.site.urls),
+          path('articls/', include('articls.urls')),   
+      ]
+
+      # 앱 urls.py
+      from django.urls import path
+      from . import views
+      urlpatterns = [
+          path('', views.index),
+          path('dinner/', views.dinner),  # path함수가 view함수를 호출
+          path('search/', views.search),
+          path('<int:num>', views.detail),
+      ]
+
+    ```
+
+## Naming URL patterns
+1. url에 이름을 지정하는 것 (path 함수의 name 인자를 정의해서 사용)
+    ```python
+      path('search/', views.search, name="search"), # 라고 인자를 정의하면 html파일에서
+
+      # index.html
+      <a href="/search/">  # 해당형태에서 아래 형태로 바뀜
+      <a href="{% url 'search' %}">
+    ```
+
+2. url tag
+    - {% url 'url name' arg1 arg2 %}
+    - 주어진 url패턴의 이름과 일치하는 절대 경로 주소를 반환
+
+3. app_name 속성 지정
+    - {% url 'app_name:path_name' %}
+
+
+# 추가 템플릿 경로 (참고)
+1. 템플릿 기본 경로 외 커스텀 경로 추가하기
+    - 프로젝트의 setting.py에서 수정
+      ```python
+          # 파이선의 객체 지향 파일 시스템 경로
+
+          # settings에서 경로지정을 편하게 하기위해 최상단 지점을 지정해 둔 변수
+          BASE_DIR = Path(__file__).resolve().parent.parent
+
+          TEMPLATES = [
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': [BASE_DIR / 'templates'],  # 여기서 새로운 경로 추가
+      ```
+2. DTL 주의사항
+    - 파이선의 일부 프로그래밍 구조(if, for 등)을 사용할 수 있지만, 그냥 파이선이랑 비슷한 생김새인거지 파이선 코드가 실행되는 것이 아니다. 
+3. url의 trailing slashes
+    - 장고는 url 끝에 '/'가 없다면 자동으로 붙임
+    - 기술적 측면에서 '/bar/'와 '/bar'는 서로다른 url
+    - 장고는 검색엔진이 혼동하지않도록 무조건 붙여지도록 만든거임, 모든 프레임워크가 그런거 아니니까 주의하셈
