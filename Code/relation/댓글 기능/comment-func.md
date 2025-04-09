@@ -149,3 +149,120 @@ comment.save()  # 이제야 진짜 DB에 저장됨
 | 7 | 댓글 작성 후 해당 게시글 상세 페이지로 이동 |
 
 
+---
+
+
+
+
+
+
+# 💬 Django 댓글 작성자 저장 및 생성 흐름 정리
+
+## ✅ 기능 목표
+- 댓글 작성 시 로그인한 사용자의 `username`을 댓글과 함께 저장
+- 로그아웃 후에도 누가 쓴 댓글인지 식별 가능하게 하기
+
+---
+
+## 1. 모델 설정
+`Comment` 모델에 `author_name` 필드를 추가해 사용자 이름을 저장한다.
+
+```python
+class Comment(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    content = models.TextField()
+    author_name = models.CharField(max_length=100, default='익명')
+```
+
+> 🔍 `default='익명'`을 지정해두면 기존 댓글에 대해 마이그레이션 오류를 방지할 수 있다.
+
+---
+
+## 2. 댓글 생성 뷰 함수 흐름
+
+```python
+@login_required
+def comments_create(request, pk):
+    article = Article.objects.get(pk=pk)
+    comment_form = CommentForm(request.POST)
+
+    if comment_form.is_valid():
+        comment = comment_form.save(commit=False)  # DB 저장 지연
+        comment.article = article
+        comment.author_name = request.user.username
+        comment.save()
+        return redirect('articles:detail', article.pk)
+
+    context = {
+        'article': article,
+        'comment_form': comment_form,
+    }
+    return render(request, 'articles/detail.html', context)
+```
+
+### 🔍 `commit=False`의 의미
+- `form.save(commit=False)`는 아직 DB에 저장하지 않고 인스턴스만 만든다.
+- 이를 통해 ForeignKey 등 추가 필드를 채워넣고 `.save()`로 최종 저장 가능
+
+---
+
+## 3. 템플릿에서 댓글 작성자 출력
+```django
+{% for comment in article.comment_set.all %}
+  <p><strong>{{ comment.author_name }}</strong>: {{ comment.content }}</p>
+{% endfor %}
+```
+
+---
+
+## 4. 마이그레이션 시 에러 메시지 대처
+```
+It is impossible to add a non-nullable field 'author_name' to comment without specifying a default.
+```
+
+이 경우 해결 방법:
+- `models.py`에 `default='익명'` 추가 후 다시 `makemigrations`
+
+---
+
+## 5. ForeignKey의 역참조 이름 규칙
+
+### ❓ `article.comment_set.all`의 `comment_set`은 어디서 왔을까?
+
+Django는 `ForeignKey`가 연결된 모델에서 기본적으로 아래 규칙으로 역참조 이름을 생성함:
+
+- **기본 형식**: `소문자_모델명_set` → 예: `comment_set`
+
+```python
+class Comment(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+```
+
+→ 이 경우, `article.comment_set.all()`로 연결된 댓글들을 조회할 수 있다.
+
+### ✅ 관련 예시
+```python
+article = Article.objects.get(pk=1)
+comments = article.comment_set.all()  # article에 연결된 모든 댓글
+```
+
+### 💡 `related_name`으로 변경 가능
+```python
+class Comment(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments')
+```
+
+→ 이제 `article.comments.all()`처럼 더 직관적으로 접근 가능함.
+
+---
+
+## ✅ 전체 정리표
+| 항목 | 설명 |
+|------|------|
+| 작성자 저장 | `author_name` 필드에 `request.user.username` 저장 |
+| `commit=False` | 추가 필드 채우기 위해 저장 지연 방식 사용 |
+| 출력 방식 | `{{ comment.author_name }}: {{ comment.content }}` |
+| 역참조 기본명 | `모델명_set` (`comment_set`) |
+| 역참조 커스터마이징 | `related_name='comments'` → `article.comments.all()` 사용 가능 |
+| 마이그레이션 주의 | 새 필드 추가 시 기본값 지정 필요 (`default`) |
+
