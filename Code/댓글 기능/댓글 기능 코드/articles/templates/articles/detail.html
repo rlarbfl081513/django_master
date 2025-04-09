@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  {% comment %} 게시글 상세 정보들  {% endcomment %}
+  <h1>DETAIL</h1>
+  <h2>{{ article.pk }} 번째 글</h2>
+  <hr>
+  <p>제목 : {{ article.title }}</p>
+  <p>내용 : {{ article.content }}</p>
+  <p>작성일 : {{ article.created_at }}</p>
+  <p>수정일 : {{ article.updated_at }}</p>
+  <hr>
+
+  {% comment %}  댓글 리스트트 {% endcomment %}
+  <h1>comment list</h1>
+  댓글 개수 : {{comment|length}}개
+  댓글 개수 : {{article.comment_set.all|length}}개
+
+    {% for item in comment %}
+      {% comment %} 
+      author_name라는 이름으로 모델에서 정의한 작성자의 정보를 가져와서 넣는다. 
+      {% endcomment %}
+      <p>작성자 ({{ item.author_name }})</p>
+      <p>{{item.content}}</p>
+      {% comment %} 댓글 삭제 버튼  {% endcomment %}
+      <form action="{% url "articles:comments_delete" article.pk item.pk %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="delete">
+      </form>
+    {% endfor %}
+ 
+
+
+  <hr>
+{% comment %} 댓글 업로드 버튼 {% endcomment %}
+  <form action={% url "articles:comments_create" article.pk %} method='POST'>
+    {% csrf_token %}
+    {{comment_form}}
+    <input type="submit">
+  </form>
+
+  {% comment %} 그외 업데이트, 삭제, 뒤로가기 버튼들들 {% endcomment %}
+  <a href="{% url "articles:update" article.pk %}">[UPDATE]</a>
+  <form action="{% url "articles:delete" article.pk %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="삭제">
+  </form>
+  <a href="{% url "articles:index" %}">[back]</a>
+</body>
+</html>
