@@ -1,0 +1,30 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<h1>회원가입 페이지</h1>
+
+{% comment %}  
+1. 두개의 차이점 : <a href="...">	vs <form action="...">	
+  - <a href="..."> 
+    - 사용자가 클릭해서 이동할떄 사용, 
+    - 걍 이 주소가 ㄱㄱ 
+    - (단순페이지 이동) (사용자가 클릭하면 GET요청 발생생)
+
+  - <form action="...">
+    - 사용자가 입력한 데이터를 서버에 보낼떄 이용, 
+    - 내가 입력한 데이터를 이 URL로 보내자 
+    - (서버에 데이터를 보내기 위한 요청) (보통 POST,GET, multipart/form-data같은 방식으로 서버에 전송)
+{% endcomment %}
+
+{% comment %}  
+- form에 대한 이해
+  - action="{% url "articles:signup" %}" : 서버로 데이터를 보낼 url 지정
+  - method='POST' : 데이터를 실제로 보냄 (서버에서 db에 저장 등 처리)
+  - csrf_token : POST 보안 토큰 (안쓰면 오류나서 꼭 써야함)
+{% endcomment %}
+<form action="{% url "accounts:signup" %}" method='POST'>
+  {% csrf_token %}
+  {{form.as_p}}
+  <input type="submit" value='회원가입'>
+</form>
+{% endblock content %}

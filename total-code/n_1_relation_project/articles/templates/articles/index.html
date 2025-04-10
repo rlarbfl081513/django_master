@@ -1,0 +1,14 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<h1>메인 articles 페이지 </h1>
+
+
+  {% if request.user.is_authenticated %}
+    <h3>안녕하세요, {{user.username}}님</h3>
+    <a href="{% url "accounts:logout" %}">[로그아웃]</a>
+  {% else %}
+    <h3>로그인을 하세요.</h3>
+  {% endif %}
+
+{% endblock content %}

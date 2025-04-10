@@ -1,0 +1,37 @@
+{% extends "base.html" %} 
+{% comment %} 위의 코드는 무조건 가장 상단에 넣어야함, 주석아래여도 안됨, 그냥 최상단에 넣어  {% endcomment %}
+{% comment %} 
+- 템플릿 상속을 위한 문법
+- 이 템플릿은 base.html을 기반으로 만들어질거야라고 선언하는 것 
+- 메뉴바, 푸터 같이 반복되는 것들을 효율적으로 하기위해 base,html이라는 공통 틀을 만드는 거임 --> extend해서 필요한 부분만 바꿔서 쓰는 거임 
+{% endcomment %}
+
+
+{% block content %}
+<h1>계정관련 페이지</h1>
+<p>안녕하세요!{{user.username}}님</p>
+
+<h2>이동 링크 리스트</h2>
+<ul>
+
+  {% comment %} 
+  - 링크 이동은 아래의 방식으로도 가능하지만 url 충돌을 방지하기위해 앱네임을 만들었으니까, 아래의 방식으로 안하는거임 
+  <li><a href="signup/">[회원가입]</a></li> 
+  {% endcomment %}
+
+  {% comment %}  
+    로그인과 비로그인 상태에서 화면에 출력되는 링크를 다르게 설정하기
+  {% endcomment %}
+  {% if request.user.is_authenticated %}
+    <li><a href="{% url "accounts:userEdit" %}">[회원정보 수정]</a></li>
+    <form action="{% url "accounts:signout" %}" method='POST'>
+      {% csrf_token %}
+      <input type="submit" value="회원탈퇴">
+    </form>
+  {% else %}
+    <li><a href="{% url "accounts:login" %}">[로그인]</a></li>
+    <li><a href="{% url "accounts:signup" %}">[회원가입]</a></li>
+  {% endif %}
+
+</ul>
+{% endblock content %}
