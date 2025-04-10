@@ -1,0 +1,36 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<h1>create 페이지 </h1>
+
+{# 이미지 업로드를 위한 코드 추가 #}
+    {# fornm요소의 enctype 속성 추가, enctype은 데이터 전송방식을 결정하는 속성 #}
+    {# enctype="multipart/form-data"은 폼에서 이미지나 파일을 업로드하게 하는 코드, 기본 html은 text 데이터만 전송할 수 있음, 하지만 파일(이미지나 pdf등)을 보내려면 폼의 인코딩 방식을 바꿔야함 #}
+    {% comment %}  
+        multipart/form-data란?
+        - 데이터를 여러파트로 나눠서 전송하는 방식
+        - 각 인풋의 내용과 파일을 별도 파일로 나눠서 서버에 보냄
+        - 그래서 장고는 같은 서버가 이미지 파일을 따로 처리할 수 있게 됨
+            - 이거를 안쓰면 서버에 이미지가 도착하지 않음
+            - 텍스트와 아닌 것들을 나눠서 보내고, 파일은 따로 처리해달라고 서버에 알려주는 것이 바로 multipart/form-data의 역할
+
+            - title은 텍스트 → 텍스트 파트로 전송
+            - image는 파일 → 별도 파트로 바이너리 전송
+            - 서버는 이걸 보고 "image는 파일이구나" 하고 request.FILES에서 따로 처리함
+
+            - request.POST: 텍스트 필드 (예: title, content)
+            - request.FILES: 파일 필드 (예: image, file 등)
+            - 그래서 우리는 "form = ArticleForm(request.POST, request.FILES)"이렇게 쓰는 거임
+
+
+
+    {% endcomment %}
+<form action="{% url "articles:create" %}" method='POST' enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" value="생성하기">
+</form>
+
+
+
+{% endblock content %}

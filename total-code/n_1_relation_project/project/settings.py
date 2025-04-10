@@ -126,7 +126,37 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+
+
+##-----------------------------여기부터 추가한 코드
+
+## 이미지 경로
+# 브라우저에서 정적 파일을 요청하 때 url경로 / 예)<img src="/static/logo.png">
 STATIC_URL = 'static/'
+
+# 그런데 /static/logo.png를 실제로 어디서 읽어올지는 장고가 따로 알아야함, 그걸 알려주는게 아래의 코드임
+# 임의의 추가 경로 설정하기
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+    # STATIC_URL : 브라우저가 요청할 경로 (url 주소)
+    # STATICFILES_DIRS : 실제 정적 파일들이 저장된 로컬 경로
+        # STATICFILES_DIRS 설정을 안하면
+        # 장고는 app/static 폴더만 자동 인식
+        # 프러젝트 루트/static은 몰라
+        # 그래서 따로 설정해서 장고가 프로젝트루트/static도 정적 파일로 인식하게 하는 거임
+
+
+
+## 이미지 업로드를 위한 코드
+# 미디어 파일들이 위치하는 디렉토리의 절대 경로
+MEDIA_ROOT = BASE_DIR / 'media'
+# 미디어루트에서 제공되는 미디어 파일에 대한 주소를 생성 (STATIC_URL과 동일한 역할)
+MEDIA_URL = 'media/'
+
+
+##-----------------------------여기까지가 추가한 코드
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

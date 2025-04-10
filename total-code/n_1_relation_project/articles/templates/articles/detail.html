@@ -1,0 +1,15 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<h1>detail 페이지 </h1>
+
+<li>{{article.title}}</li>
+<li>{{article.content}}</li>
+
+<a href="{% url "articles:edit" article.pk %}">[edit]</a>
+<form action="{% url "articles:delete" article.pk %}">
+    {% csrf_token %}
+    <input type="submit" value='delete'>
+</form>
+
+{% endblock content %}
